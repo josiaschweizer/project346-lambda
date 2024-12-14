@@ -1,9 +1,10 @@
 #!/bin/bash
 
 # Variablen definieren
-INPUT_BUCKET="csv-input-bucket"
-OUTPUT_BUCKET="json-output-bucket"
-LAMBDA_NAME="CsvToJsonConverter"
+DATE=$(date +"%Y%m%d%H%M")  # Format: YYYYMMDDHHMM
+INPUT_BUCKET="csv-input-bucket-josia123-$DATE"
+OUTPUT_BUCKET="json-output-bucket-josia123-$DATE"
+LAMBDA_NAME="CsvToJsonConverterV2"
 LAMBDA_ROLE_ARN="arn:aws:iam::488917449132:role/LabRole"
 
 # 1. S3-Buckets erstellen
@@ -13,7 +14,7 @@ aws s3 mb s3://$OUTPUT_BUCKET
 echo "S3-Buckets created: $INPUT_BUCKET and $OUTPUT_BUCKET"
 
 # 2. Lambda-Funktion erstellen
-echo "Erstelle Lambda-Funktion..."
+echo "Creating Lambda-Function..."
 zip lambda.zip csv_to_json.js
 aws lambda create-function --function-name $LAMBDA_NAME \
     --runtime nodejs18.x \
