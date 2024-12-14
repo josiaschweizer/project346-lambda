@@ -1,0 +1,8 @@
+{
+  "LambdaFunctionConfigurations": [
+    {
+      "LambdaFunctionArn": "arn:aws:lambda:<REGION>:<ACCOUNT_ID>:function/CsvToJsonConverter",
+      "Events": ["s3:ObjectCreated:*"]
+    }
+  ]
+}
