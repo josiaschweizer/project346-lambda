@@ -8,25 +8,44 @@ LAMBDA_NAME="CsvToJsonConverterV2-josia123-$DATE"
 LAMBDA_ROLE_ARN="arn:aws:iam::488917449132:role/LabRole"
 REGION="us-east-1"
 
+# Überprüfen, ob csv_to_json.js existiert
+if [ ! -f csv_to_json.js ]; then
+    echo "Error: csv_to_json.js not found!"
+    exit 1
+fi
+
 # 1. S3-Buckets erstellen
 echo "Creating AWS S3-Buckets..."
-aws s3 mb s3://$INPUT_BUCKET --region $REGION
-aws s3 mb s3://$OUTPUT_BUCKET --region $REGION
+aws s3 mb s3://$INPUT_BUCKET --region $REGION || { echo "Failed to create input bucket"; exit 1; }
+aws s3 mb s3://$OUTPUT_BUCKET --region $REGION || { echo "Failed to create output bucket"; exit 1; }
 echo "S3-Buckets created: $INPUT_BUCKET and $OUTPUT_BUCKET"
 
 # 2. Lambda-Funktion erstellen
 echo "Creating Lambda-Function..."
-zip lambda.zip csv_to_json.js
-aws lambda create-function --function-name $LAMBDA_NAME \
-    --runtime nodejs18.x \
-    --role $LAMBDA_ROLE_ARN \
-    --handler csv_to_json.handler \
-    --zip-file fileb://lambda.zip \
-    --region $REGION || \
-aws lambda update-function-code --function-name $LAMBDA_NAME \
-    --zip-file fileb://lambda.zip \
-    --region $REGION
-echo "Lambda-Function $LAMBDA_NAME created."
+# Cleanup existing zip if exists
+rm -f lambda.zip
+
+# Create new zip file
+zip lambda.zip csv_to_json.js || { echo "Failed to create zip file"; exit 1; }
+
+# Check if function exists
+if aws lambda get-function --function-name $LAMBDA_NAME --region $REGION 2>/dev/null; then
+    echo "Updating existing Lambda function..."
+    aws lambda update-function-code \
+        --function-name $LAMBDA_NAME \
+        --zip-file fileb://lambda.zip \
+        --region $REGION || { echo "Failed to update Lambda function"; exit 1; }
+else
+    echo "Creating new Lambda function..."
+    aws lambda create-function \
+        --function-name $LAMBDA_NAME \
+        --runtime nodejs18.x \
+        --role $LAMBDA_ROLE_ARN \
+        --handler csv_to_json.handler \
+        --zip-file fileb://lambda.zip \
+        --region $REGION || { echo "Failed to create Lambda function"; exit 1; }
+fi
+echo "Lambda-Function $LAMBDA_NAME deployed successfully."
 
 # 3. S3-Bucket-Trigger hinzufügen
 echo "Adding trigger for $INPUT_BUCKET..."
@@ -36,21 +55,28 @@ aws lambda add-permission \
     --action "lambda:InvokeFunction" \
     --principal s3.amazonaws.com \
     --source-arn arn:aws:s3:::$INPUT_BUCKET \
-    --region $REGION
+    --region $REGION || { echo "Warning: Failed to add Lambda permission"; }
+
+# Get Lambda ARN
+LAMBDA_ARN=$(aws lambda get-function --function-name $LAMBDA_NAME --region $REGION --query "Configuration.FunctionArn" --output text)
+if [ -z "$LAMBDA_ARN" ]; then
+    echo "Error: Could not get Lambda ARN"
+    exit 1
+fi
 
 aws s3api put-bucket-notification-configuration \
     --bucket $INPUT_BUCKET \
     --notification-configuration '{
         "LambdaFunctionConfigurations": [
             {
-                "LambdaFunctionArn": "'"$(aws lambda get-function --function-name $LAMBDA_NAME --region $REGION --query "Configuration.FunctionArn" --output text)"'",
+                "LambdaFunctionArn": "'"$LAMBDA_ARN"'",
                 "Events": ["s3:ObjectCreated:*"]
             }
         ]
-    }' --region $REGION
+    }' --region $REGION || { echo "Failed to configure S3 trigger"; exit 1; }
 echo "Trigger added."
 
 # Aufräumen
-rm lambda.zip
+rm -f lambda.zip
 echo "Setup finished!"
 
