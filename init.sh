@@ -3,7 +3,7 @@
 # Variablen definieren
 DATE=$(date +"%Y%m%d%H%M%S")  # Format: YYYYMMDDHHMM
 INPUT_BUCKET="josiaschweizer-input-bucket-$DATE"
-OUTPUT_BUCKET="josiaschweizer-output-bucket"
+OUTPUT_BUCKET="josiaschweizer-output-bucket-$DATE"
 LAMBDA_NAME="CsvToJsonConverterV2-josia123-$DATE"
 LAMBDA_ROLE_ARN=$(aws iam get-role --role-name 'LabRole' --query 'Role.Arn' --output text)
 REGION="us-east-1"
