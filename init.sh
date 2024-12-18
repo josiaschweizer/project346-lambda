@@ -9,10 +9,10 @@ LAMBDA_ROLE_ARN=$(aws iam get-role --role-name 'LabRole' --query 'Role.Arn' --ou
 REGION="us-east-1"
 
 # Überprüfen, ob csv_to_json.js existiert
-if [ ! -f csv_to_json.js ]; then
-    echo "Error: csv_to_json.js not found!"
-    exit 1
-fi
+# if [ ! -f csv_to_json.js ]; then
+#    echo "Error: csv_to_json.js not found!"
+#    exit 1
+# fi
 
 # Funktion zum Löschen eines Buckets (falls vorhanden)
 delete_bucket_if_exists() {
@@ -38,10 +38,10 @@ echo "S3-Buckets created: $INPUT_BUCKET and $OUTPUT_BUCKET"
 # 3. Lambda-Funktion erstellen oder aktualisieren
 echo "Creating or updating Lambda function..."
 # Cleanup existing zip if exists
-rm -f lambda.zip
+# rm -f lambda.zip
 
 # Create new zip file
-zip lambda.zip csv_to_json.js || { echo "Failed to create zip file"; exit 1; }
+# zip lambda.zip csv_to_json.js || { echo "Failed to create zip file"; exit 1; }
 
 # Erstelle oder update die Lambda-Funktion und setze die Umgebungsvariablen
 if aws lambda get-function --function-name $LAMBDA_NAME --region $REGION 2>/dev/null; then
@@ -102,6 +102,6 @@ echo "Input-Bucket: $INPUT_BUCKET"
 echo "Output-Bucket: $OUTPUT_BUCKET"
 
 # Aufräumen
-rm -f lambda.zip
+# rm -f lambda.zip
 echo "Setup finished!"
 
