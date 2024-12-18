@@ -5,7 +5,7 @@ DATE=$(date +"%Y%m%d%H%M")  # Format: YYYYMMDDHHMM
 INPUT_BUCKET="csv-input-bucket-josia123-$DATE"
 OUTPUT_BUCKET="json-output-bucket-josia123-$DATE"
 LAMBDA_NAME="CsvToJsonConverterV2-josia123-$DATE"
-LAMBDA_ROLE_ARN="arn:aws:iam::488917449132:role/LabRole"
+LAMBDA_ROLE_ARN=$(aws iam get-role --role-name 'LabRole' --query 'Role.Arn' --output text)
 REGION="us-east-1"
 
 # Überprüfen, ob csv_to_json.js existiert
@@ -37,13 +37,13 @@ if aws lambda get-function --function-name $LAMBDA_NAME --region $REGION 2>/dev/
         --region $REGION || { echo "Failed to update Lambda function"; exit 1; }
 else
     echo "Creating new Lambda function..."
-    aws lambda create-function \
+    asdf=$(aws lambda create-function \
         --function-name $LAMBDA_NAME \
         --runtime nodejs18.x \
         --role $LAMBDA_ROLE_ARN \
         --handler csv_to_json.handler \
         --zip-file fileb://lambda.zip \
-        --region $REGION || { echo "Failed to create Lambda function"; exit 1; }
+        --region $REGION) || { echo "Failed to create Lambda function"; exit 1; }
 fi
 echo "Lambda-Function $LAMBDA_NAME deployed successfully."
 
