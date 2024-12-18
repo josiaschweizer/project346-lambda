@@ -12,7 +12,7 @@ exports.handler = async (event) => {
         const jsonKey = key.replace('.csv', '.json');
 
         await s3.putObject({
-            Bucket: 'json-output-bucket',
+            Bucket: 'josiaschweizer-output-bucket',
             Key: jsonKey,
             Body: JSON.stringify(jsonData),
             ContentType: 'application/json',

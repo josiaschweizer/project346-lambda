@@ -3,7 +3,7 @@
 # Variablen definieren
 DATE=$(date +"%Y%m%d%H%M%S")  # Format: YYYYMMDDHHMM
 INPUT_BUCKET="josiaschweizer-input-bucket-$DATE"
-OUTPUT_BUCKET="josiaschweizer-output-bucket"  # Fester Output-Bucket-Name
+OUTPUT_BUCKET="josiaschweizer-output-bucket"
 LAMBDA_NAME="CsvToJsonConverterV2-josia123-$DATE"
 LAMBDA_ROLE_ARN=$(aws iam get-role --role-name 'LabRole' --query 'Role.Arn' --output text)
 REGION="us-east-1"
@@ -50,7 +50,7 @@ if aws lambda get-function --function-name $LAMBDA_NAME --region $REGION 2>/dev/
         --function-name $LAMBDA_NAME \
         --environment "Variables={OUTPUT_BUCKET=$OUTPUT_BUCKET}" \
         --region $REGION || { echo "Failed to update Lambda function configuration"; exit 1; }
-    aws lambda update-function-code \
+	aws lambda update-function-code \
         --function-name $LAMBDA_NAME \
         --zip-file fileb://lambda.zip \
         --region $REGION) || { echo "Failed to update Lambda function"; exit 1; }
@@ -58,7 +58,7 @@ else
     echo "Creating new Lambda function..."
     asdf=$(aws lambda create-function \
         --function-name $LAMBDA_NAME \
-        --runtime nodejs18.x \
+        --runtime nodejs22.x \
         --role $LAMBDA_ROLE_ARN \
         --handler csv_to_json.handler \
         --zip-file fileb://lambda.zip \
