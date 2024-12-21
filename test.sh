@@ -26,7 +26,7 @@ echo -e "name,age,city\nSophia,22,Madrid\nOlivia,29,Paris\nLiam,34,London" > tes
 echo "Creating a very large CSV file: test4.csv"
 echo "name,age,city" > test4.csv
 seq 1 10000 | awk -F, '{print "User" $1 "," int(rand()*100) "," "City" $1}' >> test4.csv
-echo "Test4.csv created with 100k rows."
+echo "Test4.csv created with 10,000 rows."
 
 # 3. CSV-Dateien hochladen
 echo "Uploading CSV files to input bucket: $INPUT_BUCKET"
@@ -37,22 +37,26 @@ aws s3 cp test4.csv s3://$INPUT_BUCKET/test4.csv --region us-east-1 || { echo "F
 
 # 4. Warten auf Verarbeitung
 echo "Waiting for files to be processed..."
-sleep 10  # Wartezeit für die Lambda-Verarbeitung
+sleep 15  # Wartezeit für die Lambda-Verarbeitung
 
 # 5. Überprüfen der JSON-Dateien im Output-Bucket
 echo "Checking output bucket for JSON files..."
-JSON_FILES_COUNT=$(aws s3 ls s3://$OUTPUT_BUCKET/ --region us-east-1 | grep ".json" | wc -l) || { echo "Failed to list output bucket contents"; exit 1; }
+JSON_FILES=$(aws s3 ls s3://$OUTPUT_BUCKET/ --region us-east-1 | grep ".json")
+JSON_FILES_COUNT=$(echo "$JSON_FILES" | wc -l)
 
 if [ "$JSON_FILES_COUNT" -eq 4 ]; then
-    rm test1.csv test2.csv test3.csv test4.csv
     echo "Test passed: Found 4 JSON files in the output bucket."
 else
-    rm test1.csv test2.csv test3.csv test4.csv
     echo "Test failed: Expected 4 JSON files, but found $JSON_FILES_COUNT."
     exit 1
 fi
 
-# 6. Aufräumen
+# 6. Herunterladen der JSON-Dateien
+echo "Downloading JSON files from output bucket: $OUTPUT_BUCKET"
+aws s3 cp s3://$OUTPUT_BUCKET/ ./ --recursive --exclude "*" --include "*.json" --region us-east-1 || { echo "Failed to download JSON files"; exit 1; }
+echo "JSON files downloaded successfully to the current directory."
+
+# 7. Aufräumen
 rm test1.csv test2.csv test3.csv test4.csv
 echo "Test completed successfully!"
 
