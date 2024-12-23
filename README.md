@@ -89,26 +89,7 @@ Das Init Script ist entscheidend für die Einrichtung des Services. Es erstellt 
 
 ---
 
-## **Reflexion**
-
-### **Herausforderungen:**
-
-- Fehlannahme, dass die Buckets separaten Code benötigen. Erst durch Experimente und Anpassungen wurde klar, dass die Funktionalität direkt durch das Init Script und die Lambda-Funktion übernommen werden kann.
-
-### **Lessons Learned:**
-
-- Eine klare Struktur und Planung sind essenziell, um Missverständnisse und unnötige Arbeitsschritte zu vermeiden.
-- Die Kombination aus Eigeninitiative und gezielter Nutzung von Hilfsmitteln wie ChatGPT ermöglicht eine effiziente Problemlösung.
-
-### **Zukünftige Verbesserungen:**
-
-- Erweiterung des Services zur Verarbeitung weiterer Dateiformate.
-- Hinzufügen von Logging und Monitoring für eine bessere Nachverfolgung.
-- Implementierung von Berechtigungsmechanismen, um den Zugriff auf die Buckets und die Funktion zu sichern.
-
----
-
-## Test (Ben Lämmlin)
+## Test
 
 ![image.png](image.png)
 
@@ -144,3 +125,22 @@ Hier kann man das CSV File sehen, welches generiert wurde.
 ```
 
 Hier kann man das konvertierte JSON sehen, welches, wie man sehen kann, korrekt konvertiert wurde.
+
+---
+
+## **Reflexion**
+
+### **Herausforderungen:**
+
+- Fehlannahme, dass die Buckets separaten Code benötigen. Erst durch Experimente und Anpassungen wurde klar, dass die Funktionalität direkt durch das Init Script und die Lambda-Funktion übernommen werden kann.
+
+### **Lessons Learned:**
+
+- Eine klare Struktur und Planung sind essenziell, um Missverständnisse und unnötige Arbeitsschritte zu vermeiden.
+- Die Kombination aus Eigeninitiative und gezielter Nutzung von Hilfsmitteln wie ChatGPT ermöglicht eine effiziente Problemlösung.
+
+### **Zukünftige Verbesserungen:**
+
+- Erweiterung des Services zur Verarbeitung weiterer Dateiformate.
+- Hinzufügen von Logging und Monitoring für eine bessere Nachverfolgung.
+- Implementierung von Berechtigungsmechanismen, um den Zugriff auf die Buckets und die Funktion zu sichern.
